@@ -29,6 +29,23 @@ class SparseMolecularDataset():
         with open(filename, 'wb') as f:
             pickle.dump(self.__dict__, f)
 
+    def newgenerate(self, filename, add_h=False, filters=lambda x: True, size=None, validation=0.1, test=0.1):  
+        if filename.endswith('.smi'):
+            self.data = [Chem.MolFromSmiles(line) for line in open(filename, 'r').readlines()]
+
+        self.data = list(map(Chem.AddHs, self.data)) if add_h else self.data
+        self.data = list(filter(filters, self.data))
+        self.data = self.data[:size]
+
+        bond_labels = [Chem.rdchem.BondType.ZERO] + list(sorted(set(bond.GetBondType()
+                                                                    for mol in self.data
+                                                                    for bond in mol.GetBonds())))
+
+        self.bond_encoder_m = {l: i for i, l in enumerate(bond_labels)}
+        self.bond_decoder_m = {i: l for i, l in enumerate(bond_labels)}
+    
+
+
     def generate(self, filename, add_h=False, filters=lambda x: True, size=None, validation=0.1, test=0.1):
         self.log('Extracting {}..'.format(filename))
 
@@ -61,7 +78,7 @@ class SparseMolecularDataset():
         self.vertexes = self.data_F.shape[-2]
         self.features = self.data_F.shape[-1]
 
-        self._generate_train_validation_test(validation, test)
+        #self._generate_train_validation_test(validation, test)
 
     def _generate_encoders_decoders(self):
         self.log('Creating atoms encoder and decoder..')
@@ -289,10 +306,9 @@ class SparseMolecularDataset():
 
 
 if __name__ == '__main__':
-    data = SparseMolecularDataset()
-    data.generate('gdb9.sdf', filters=lambda x: x.GetNumAtoms() <= 9)
-    data.save('gdb9_9nodes.sparsedataset')
-
     # data = SparseMolecularDataset()
-    # data.generate('data/qm9_5k.smi', validation=0.00021, test=0.00021)  # , filters=lambda x: x.GetNumAtoms() <= 9)
-    # data.save('data/qm9_5k.sparsedataset')
+    # data.generate('gdb9.sdf', filters=lambda x: x.GetNumAtoms() <= 9)
+    # data.save('gdb9_9nodes.sparsedataset')
+
+    data = SparseMolecularDataset()
+    data.newgenerate('data/qm9_5k.smi', validation=0.00021, test=0.00021)  # , filters=lambda x: x.GetNumAtoms() <= 9)

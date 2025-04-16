@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     # Quantum
     # quantum circuit to generate inputs of MolGAN
-    config.quantum = False
+    config.quantum = True
     # number of qubit of quantum circuit
     config.qubits = 8
     # number of layer of quantum circuit
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     # input noise dimension
     config.z_dim = 8
     # number of epoch
-    config.num_epochs = 300
+    config.num_epochs = 10
     # n_critic
     config.n_critic = 5
     # critic type

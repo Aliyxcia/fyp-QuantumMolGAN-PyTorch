@@ -4,7 +4,7 @@ import torch
 
 ATOM_NUM = 45
 n_circuites = ATOM_NUM
-n_qubits = 9
+n_qubits = 8
 
 n_measured_wire = 1
 
