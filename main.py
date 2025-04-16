@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
     # Dataset
     # molecule dataset dir
-    config.mol_data_dir = r'data/gdb9_9nodes.sparsedataset'
+    config.mol_data_dir = r'data/gdb11_size11.sparsedataset'
     #config.mol_data_dir = r'data/qm9_5k.sparsedataset'
 
 
