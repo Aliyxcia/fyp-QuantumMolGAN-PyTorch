@@ -6,6 +6,8 @@ import time
 import datetime
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 import pennylane as qml
 import random
@@ -19,6 +21,7 @@ from data.sparse_molecular_dataset import SparseMolecularDataset
 from utils.logger import Logger
 from torch.autograd import Variable
 from q_discriminator_v2_wgan import HybridModel
+from aliyxcia_utils import *
 
 from frechetdist import frdist
 
@@ -162,23 +165,23 @@ class Solver(object):
         #self.D = Discriminator(self.d_conv_dim, self.m_dim, self.b_dim - 1, self.dropout)
         #self.V = Discriminator(self.d_conv_dim, self.m_dim, self.b_dim - 1, self.dropout)
         self.D = HybridModel(LAYER3=True)
-        self.V = Discriminator(self.d_conv_dim, self.m_dim, self.b_dim - 1, self.dropout)
+        # self.V = Discriminator(self.d_conv_dim, self.m_dim, self.b_dim - 1, self.dropout)
 
         # Optimizers can be RMSprop or Adam
         self.g_optimizer = torch.optim.RMSprop(self.G.parameters(), self.g_lr)
         #self.d_optimizer = torch.optim.RMSprop(self.D.parameters(), self.d_lr)
         self.d_optimizer = torch.optim.SGD(self.D.parameters(), lr=1e-4) #0.2
-        self.v_optimizer = torch.optim.RMSprop(self.V.parameters(), self.g_lr)
+        # self.v_optimizer = torch.optim.RMSprop(self.V.parameters(), self.g_lr)
 
         # Print the networks
         self.print_network(self.G, 'G', self.log)
         self.print_network(self.D, 'D', self.log)
-        self.print_network(self.V, 'V', self.log)
+        # self.print_network(self.V, 'V', self.log)
 
         # Bring the network to GPU
         self.G.to(self.device)
         self.D.to(self.device)
-        self.V.to(self.device)
+        # self.V.to(self.device)
 
     @staticmethod
     def print_network(model, name, log=None):
@@ -199,10 +202,10 @@ class Solver(object):
         print('Loading the trained models from step {}...'.format(resume_iters))
         G_path = os.path.join(self.model_dir_path, '{}-G.ckpt'.format(resume_iters))
         D_path = os.path.join(self.model_dir_path, '{}-D.ckpt'.format(resume_iters))
-        V_path = os.path.join(self.model_dir_path, '{}-V.ckpt'.format(resume_iters))
+        # V_path = os.path.join(self.model_dir_path, '{}-V.ckpt'.format(resume_iters))
         self.G.load_state_dict(torch.load(G_path, map_location=lambda storage, loc: storage))
         self.D.load_state_dict(torch.load(D_path, map_location=lambda storage, loc: storage))
-        self.V.load_state_dict(torch.load(V_path, map_location=lambda storage, loc: storage))
+        # self.V.load_state_dict(torch.load(V_path, map_location=lambda storage, loc: storage))
 
     def load_gen_weights(self, resume_iters):
         """Restore the trained quantum circuit"""
@@ -221,7 +224,7 @@ class Solver(object):
         """Reset the gradient buffers"""
         self.g_optimizer.zero_grad()
         self.d_optimizer.zero_grad()
-        self.v_optimizer.zero_grad()
+        # self.v_optimizer.zero_grad()
 
     def gradient_penalty(self, y, x):
         """Compute gradient penalty: (L2_norm(dy/dx) - 1)**2."""
@@ -328,22 +331,22 @@ class Solver(object):
         mols = [self.data.matrices2mol(n_.data.cpu().numpy(), e_.data.cpu().numpy(), strict=True) for e_, n_ in zip(edges_hard, nodes_hard)]
         return mols
 
-    def get_reward(self, n_hat, e_hat, method):
-        """Get the reward from edges and nodes matrices"""
-        (edges_hard, nodes_hard) = self.postprocess((e_hat, n_hat), method)
-        edges_hard, nodes_hard = torch.max(edges_hard, -1)[1], torch.max(nodes_hard, -1)[1]
-        mols = [self.data.matrices2mol(n_.data.cpu().numpy(), e_.data.cpu().numpy(), strict=True) for e_, n_ in zip(edges_hard, nodes_hard)]
-        reward = torch.from_numpy(self.reward(mols)).to(self.device)
-        return reward
+    # def get_reward(self, n_hat, e_hat, method):
+    #     """Get the reward from edges and nodes matrices"""
+    #     (edges_hard, nodes_hard) = self.postprocess((e_hat, n_hat), method)
+    #     edges_hard, nodes_hard = torch.max(edges_hard, -1)[1], torch.max(nodes_hard, -1)[1]
+    #     mols = [self.data.matrices2mol(n_.data.cpu().numpy(), e_.data.cpu().numpy(), strict=True) for e_, n_ in zip(edges_hard, nodes_hard)]
+    #     reward = torch.from_numpy(self.reward(mols)).to(self.device)
+    #     return reward
 
     def save_checkpoints(self, epoch_i):
         """store the models and quantum circuit"""
         G_path = os.path.join(self.model_dir_path, '{}-G.ckpt'.format(epoch_i + 1))
         D_path = os.path.join(self.model_dir_path, '{}-D.ckpt'.format(epoch_i + 1))
-        V_path = os.path.join(self.model_dir_path, '{}-V.ckpt'.format(epoch_i + 1))
+        # V_path = os.path.join(self.model_dir_path, '{}-V.ckpt'.format(epoch_i + 1))
         torch.save(self.G.state_dict(), G_path)
         torch.save(self.D.state_dict(), D_path)
-        torch.save(self.V.state_dict(), V_path)
+        # torch.save(self.V.state_dict(), V_path)
         # save quantum weights
         if self.quantum:
             with open(os.path.join(self.model_dir_path, 'molgan_red_weights.csv'), 'a') as file:
@@ -369,8 +372,8 @@ class Solver(object):
         the_step = self.num_steps
         if train_val_test == 'val':
             if self.mode == 'train':
-                the_step = 1
-                print('[Validating]')
+                the_step = 0
+                #print('[Validating]')
             elif self.mode == 'test':
                 the_step = 1
                 print('[Testing]')
@@ -421,8 +424,8 @@ class Solver(object):
             x = torch.from_numpy(x).to(self.device).long() # node
             a_tensor = self.label2onehot(a, self.b_dim)
             x_tensor = self.label2onehot(x, self.m_dim)
-            
-            ax_tensor = upper(a_tensor, x_tensor)
+            a_uppertri = extract_upper_triangular_no_diag(a_tensor, self.device)
+            ax_tensor = upper(a_uppertri, x_tensor)
             if self.quantum:
                 z = torch.stack(tuple(sample_list)).to(self.device).float()
             else:
@@ -444,7 +447,8 @@ class Solver(object):
             edges_logits, nodes_logits = self.G(z)
             # Postprocess with Gumbel softmax
             (edges_hat, nodes_hat) = self.postprocess((edges_logits, nodes_logits), self.post_method)
-            ax_fake_tensor = upper(edges_hat, nodes_hat)            
+            edges_hat_uppertri = extract_upper_triangular_no_diag(edges_hat, self.device)
+            ax_fake_tensor = upper(edges_hat_uppertri, nodes_hat)
             logits_fake = self.D(ax_fake_tensor) 
 
             '''
@@ -468,6 +472,7 @@ class Solver(object):
                 losses['D/loss_fake'].append(d_loss_fake.item())
                 #losses['D/loss_gp'].append(grad_penalty.item())
                 losses['D/loss'].append(loss_D.item())
+                print("Step", a_step + 1, "of", the_step)
 
                 # tensorboard
                 loss_tb['D/loss_real'] = d_loss_real.item()
@@ -511,47 +516,48 @@ class Solver(object):
             # Postprocess with Gumbel softmax
             (edges_hat, nodes_hat) = self.postprocess((edges_logits, nodes_logits), self.post_method)
             #logits_fake, features_fake = self.D(edges_hat, None, nodes_hat)
-            ax_fake_tensor = upper(edges_hat, nodes_hat)            
+            edges_hat_uppertri = extract_upper_triangular_no_diag(edges_hat, self.device)
+            ax_fake_tensor = upper(edges_hat_uppertri, nodes_hat)            
             logits_fake = self.D(ax_fake_tensor) 
 
             # Value losses (RL)
-            value_logit_real, _ = self.V(a_tensor, None, x_tensor, torch.sigmoid)
-            value_logit_fake, _ = self.V(edges_hat, None, nodes_hat, torch.sigmoid)
+            # value_logit_real, _ = self.V(a_tensor, None, x_tensor, torch.sigmoid)
+            # value_logit_fake, _ = self.V(edges_hat, None, nodes_hat, torch.sigmoid)
 
             # Feature mapping losses. Not used anywhere in the PyTorch version.
             # I include it here for the consistency with the TF code.
             #f_loss = (torch.mean(features_real, 0) - torch.mean(features_fake, 0)) ** 2
 
             # Real Reward
-            reward_r = torch.from_numpy(self.reward(mols)).to(self.device)
-            # Fake Reward
-            reward_f = self.get_reward(nodes_hat, edges_hat, self.post_method)
+            # reward_r = torch.from_numpy(self.reward(mols)).to(self.device)
+            # # Fake Reward
+            # reward_f = self.get_reward(nodes_hat, edges_hat, self.post_method)
 
             # Losses Update
             loss_G = -1* torch.mean(logits_fake)
             # Original TF loss_V. Here we use absolute values instead of the squared one.
             # loss_V = (value_logit_real - reward_r) ** 2 + (value_logit_fake - reward_f) ** 2
-            loss_V = torch.abs(value_logit_real - reward_r) + torch.abs(value_logit_fake - reward_f)
-            loss_RL = -value_logit_fake
+            # loss_V = torch.abs(value_logit_real - reward_r) + torch.abs(value_logit_fake - reward_f)
+            # loss_RL = -value_logit_fake
 
             loss_G = torch.mean(loss_G)
-            loss_V = torch.mean(loss_V)
-            loss_RL = torch.mean(loss_RL)
+            # loss_V = torch.mean(loss_V)
+            # loss_RL = torch.mean(loss_RL)
             losses['G/loss'].append(loss_G.item())
-            losses['RL/loss'].append(loss_RL.item())
-            losses['V/loss'].append(loss_V.item())
+            # losses['RL/loss'].append(loss_RL.item())
+            # losses['V/loss'].append(loss_V.item())
 
             # tensorboard
             loss_tb['G/loss'] = loss_G.item()
-            loss_tb['RL/loss'] = loss_RL.item()
-            loss_tb['V/loss'] = loss_V.item()
+            # loss_tb['RL/loss'] = loss_RL.item()
+            # loss_tb['V/loss'] = loss_V.item()
 
             print('d_loss {:.2f} d_fake {:.2f} d_real {:.2f} g_loss: {:.2f}'.format(loss_D.item(), d_loss_fake.item(), d_loss_real.item(), loss_G.item()))
             print('======================= {} =============================='.format(datetime.datetime.now()), flush = True)
-            alpha = torch.abs(loss_G.detach() / loss_RL.detach()).detach()
+            # alpha = torch.abs(loss_G.detach() / loss_RL.detach()).detach()
             train_step_G = cur_la * loss_G# + (1.0 - cur_la) * alpha * loss_RL
 
-            train_step_V = loss_V
+            # train_step_V = loss_V
 
             # Optimise generator and reward network
             if train_val_test == 'train':
@@ -561,9 +567,9 @@ class Solver(object):
                         self.reset_grad()
                         if cur_la < 1.0:
                             train_step_G.backward(retain_graph=True)
-                            train_step_V.backward()
+                            # train_step_V.backward()
                             self.g_optimizer.step()
-                            self.v_optimizer.step()
+                            # self.v_optimizer.step()
                         else:
                             train_step_G.backward(retain_graph=True)
                             self.g_optimizer.step()
@@ -573,9 +579,9 @@ class Solver(object):
                         self.reset_grad()
                         if cur_la < 1.0:
                             train_step_G.backward(retain_graph=True)
-                            train_step_V.backward()
+                            # train_step_V.backward()
                             self.g_optimizer.step()
-                            self.v_optimizer.step()
+                            # self.v_optimizer.step()
                         else:
                             train_step_G.backward(retain_graph=True)
                             self.g_optimizer.step()
@@ -661,7 +667,24 @@ class Solver(object):
                     else:
                         log += ", {}: {:.2f}".format(tag, np.mean(value))
                 print(log)
+                
+                score_filename = os.path.join(self.img_dir_path, 'a_score_file_all.txt')
 
+                with open(score_filename, 'w+') as record_scores:
+                    record_scores.write(log)
+                    record_scores.close()
+
+                for k, v in m0.items():
+                    score_raw_filename = os.path.join(self.img_dir_path, '{}_raw_score_{}_file.txt'.format(epoch_i,k))
+                    with open(score_raw_filename, 'w+') as raw_scores:
+                        for singlevscore in np.array(v):
+                            raw_scores.write(f'{singlevscore}\n')
+                    plot_filename = os.path.join(self.img_dir_path, '{}_plot_{}_file.png'.format(epoch_i,k))
+                    hist_plot = sns.histplot(np.array(v), kde=True)
+                    hist_plot.set(xlabel=f"{k} scores for {len(v)} molecules")
+                    histfig = hist_plot.get_figure()
+                    histfig.savefig(plot_filename)
+                    plt.close()
 
                 if self.log is not None:
                     self.log.info(log)

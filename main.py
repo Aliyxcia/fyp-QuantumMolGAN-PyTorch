@@ -109,7 +109,7 @@ if __name__ == '__main__':
     # input noise dimension
     config.z_dim = 8
     # number of epoch
-    config.num_epochs = 300
+    config.num_epochs = 10
     # n_critic
     config.n_critic = 5
     # critic type
