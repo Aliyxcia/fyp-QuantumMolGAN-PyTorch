@@ -75,7 +75,7 @@ if __name__ == '__main__':
     config = get_GAN_config()
 
     # GPU
-    # os.environ["CUDA_VISIBLE_DEVICES"]="1"
+    os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3"
 
 
     # Dataset
