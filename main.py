@@ -22,7 +22,7 @@ def main(config):
     cudnn.benchmark = True
 
     config.resume_epoch = 6
-    config.saving_dir = "~/QuantumMolGAN-PyTorch/results/GAN/20250417_080625"
+    config.saving_dir = "/home/users/nus/e0957743/QuantumMolGAN-PyTorch/results/GAN/20250417_080625"
     # Timestamp
     if config.mode == 'train':
         a_train_time = get_date_postfix()
