@@ -21,10 +21,12 @@ def main(config):
     # For fast training
     cudnn.benchmark = True
 
+    config.resume_epoch = 6
+    config.saving_dir = "~/QuantumMolGAN-PyTorch/results/GAN/20250417_080625"
     # Timestamp
     if config.mode == 'train':
         a_train_time = get_date_postfix()
-        config.saving_dir = os.path.join(config.saving_dir, a_train_time)
+        #config.saving_dir = os.path.join(config.saving_dir, a_train_time)
         config.log_dir_path = os.path.join(config.saving_dir, config.mode, 'log_dir')
         config.model_dir_path = os.path.join(config.saving_dir, config.mode, 'model_dir')
         config.img_dir_path = os.path.join(config.saving_dir, config.mode, 'img_dir')
@@ -105,7 +107,7 @@ if __name__ == '__main__':
     # the complexity of generator
     config.complexity = 'mr'
     # batch size
-    config.batch_size = 128
+    config.batch_size = 1024
     # input noise dimension
     config.z_dim = 8
     # number of epoch
