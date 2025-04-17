@@ -112,7 +112,6 @@ class Solver(object):
 
         # GPU
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.device = 'cpu'
         print('Device: ', self.device, flush = True)
 
         # Directories
