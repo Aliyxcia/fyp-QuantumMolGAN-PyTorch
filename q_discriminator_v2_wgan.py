@@ -19,7 +19,7 @@ def qnode(inputs, weights):
     qml.templates.StronglyEntanglingLayers(weights, wires=range(n_qubits))
     return [qml.expval(qml.PauliZ(wires=i)) for i in range(MEASURED_QUBIT_IDX, MEASURED_QUBIT_IDX+1)]
 
-n_layers = 3
+n_layers = 1
 weight_shapes = {"weights": (n_layers, n_qubits, 3)}
 
 class HybridModel(torch.nn.Module):

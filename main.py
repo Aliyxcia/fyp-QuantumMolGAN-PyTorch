@@ -75,7 +75,7 @@ if __name__ == '__main__':
     config = get_GAN_config()
 
     # GPU
-    os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3"
+    #os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3"
 
 
     # Dataset
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     config.update_qc = False
     # the learning rate of quantum circuit
     # None: same learning rate as g_lr
-    config.qc_lr = 0.001#0.04
+    config.qc_lr = 0.04
     # to use pretrained quantum circuit or not
     # config.qc_pretrained = False
 
@@ -103,13 +103,13 @@ if __name__ == '__main__':
     # Training
     config.mode = 'train'
     # the complexity of generator
-    config.complexity = 'mr'
+    config.complexity = 'hr'
     # batch size
     config.batch_size = 128
     # input noise dimension
     config.z_dim = 8
     # number of epoch
-    config.num_epochs = 10
+    config.num_epochs = 20
     # n_critic
     config.n_critic = 5
     # critic type

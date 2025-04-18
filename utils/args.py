@@ -27,8 +27,8 @@ def get_GAN_config():
     # Training configuration
     parser.add_argument('--batch_size', type=int, default=128, help='mini-batch size')
     parser.add_argument('--num_epochs', type=int, default=30, help='number of epochs for training D')
-    parser.add_argument('--g_lr', type=float, default=0.001, help='learning rate for G')
-    parser.add_argument('--d_lr', type=float, default=0.001, help='learning rate for D')
+    parser.add_argument('--g_lr', type=float, default=0.2, help='learning rate for G')
+    parser.add_argument('--d_lr', type=float, default=0.2, help='learning rate for D')
     parser.add_argument('--dropout', type=float, default=0., help='dropout rate')
     parser.add_argument('--n_critic', type=int, default=5, help='number of X updates per each Y update')
     parser.add_argument('--critic_type', type=str, default='D', help='D for X=D and Y=G, G for X=G and Y=D')
