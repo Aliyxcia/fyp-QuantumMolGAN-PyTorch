@@ -6,6 +6,8 @@ import time
 import datetime
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 import pennylane as qml
 import random
@@ -618,6 +620,23 @@ class Solver(object):
                         log += ", {}: {:.2f}".format(tag, np.mean(value))
                 print(log)
 
+                score_filename = os.path.join(self.img_dir_path, 'a_score_file_all.txt')
+
+                with open(score_filename, 'w+') as record_scores:
+                    record_scores.write(log)
+                    record_scores.close()
+
+                for k, v in m0.items():
+                    score_raw_filename = os.path.join(self.img_dir_path, 'a_raw_score_{}_file.txt'.format(k))
+                    with open(score_raw_filename, 'w+') as raw_scores:
+                        for singlevscore in np.array(v):
+                            raw_scores.write(f'{singlevscore}\n')
+                    plot_filename = os.path.join(self.img_dir_path, 'a_plot_{}_file.png'.format(k))
+                    hist_plot = sns.histplot(np.array(v), kde=True)
+                    hist_plot.set(xlabel=f"{k} scores for {len(v)} molecules")
+                    histfig = hist_plot.get_figure()
+                    histfig.savefig(plot_filename)
+                    plt.close()
 
                 if self.log is not None:
                     self.log.info(log)

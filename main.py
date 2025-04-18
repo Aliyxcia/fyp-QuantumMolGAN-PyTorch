@@ -101,37 +101,37 @@ if __name__ == '__main__':
     # config.qc_pretrained = False
 
 
-    # Training
-    config.mode = 'train'
-    # the complexity of generator
+    # # Training
+    # config.mode = 'train'
+    # # the complexity of generator
+    # config.complexity = 'mr'
+    # # batch size
+    # config.batch_size = 16
+    # # input noise dimension
+    # config.z_dim = 8
+    # # number of epoch
+    # config.num_epochs = 300
+    # # n_critic
+    # config.n_critic = 3
+    # # critic type
+    # config.critic_type = 'D'
+    # # 1.0 for pure WGAN and 0.0 for pure RL
+    # config.lambda_wgan = 1
+    # # weight decay
+    # config.decay_every_epoch = 60
+    # config.gamma = 0.1
+
+
+    #Testing
+    config.mode = "test"
     config.complexity = 'mr'
-    # batch size
-    config.batch_size = 16
-    # input noise dimension
+    config.test_sample_size = 5000
     config.z_dim = 8
-    # number of epoch
-    config.num_epochs = 300
-    # n_critic
-    config.n_critic = 3
-    # critic type
-    config.critic_type = 'D'
-    # 1.0 for pure WGAN and 0.0 for pure RL
-    config.lambda_wgan = 1
-    # weight decay
-    config.decay_every_epoch = 60
-    config.gamma = 0.1
-
-
-    # Testing
-    #config.mode = "test"
-    #config.complexity = 'mr'
-    #config.test_sample_size = 5000
-    #config.z_dim = 8
-    #config.test_epoch = 30
-    # MolGAN
-    #config.saving_dir = r"results/GAN/20211014_151730/train"
-    # Quantum
-    #config.saving_dir = r"results/quantum-GAN/20211130_102404/train"
+    config.test_epoch = 300
+    #MolGAN
+    config.saving_dir = r"results/GAN/20250102_165540/train"
+    #Quantum
+    #config.saving_dir = r"results/quantum-GAN/20250102_165540/train"
 
 
     if config.complexity == 'nr':
