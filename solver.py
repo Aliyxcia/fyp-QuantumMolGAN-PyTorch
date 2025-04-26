@@ -421,8 +421,8 @@ class Solver(object):
 
 
             ########## Preprocess input data ##########
-            a = torch.from_numpy(a).to(self.device).long() # adjacency
-            x = torch.from_numpy(x).to(self.device).long() # node
+            a = torch.from_numpy(a).to(self.device).float() # adjacency
+            x = torch.from_numpy(x).to(self.device).float() # node
             # changing adjacency matrix into upper-triangular-valued column vector:
             a_tensor = extract_upper_triangular_no_diag(a, self.device)
             #a_tensor = self.label2onehot(a, self.b_dim)
